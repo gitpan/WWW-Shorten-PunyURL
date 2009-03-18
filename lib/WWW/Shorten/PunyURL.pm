@@ -6,11 +6,11 @@ WWW::Shorten::PunyURL - An interface to SAPO's URL shortening service
 
 =head1 VERSION
 
-Version 0.01
+Version 0.02
 
 =cut
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 
 =head1 SYNOPSIS
@@ -21,17 +21,17 @@ You can also provide the shortened URL and get back the original one.
 
     use WWW::Shorten::PunyURL;
 
-    my $punyurl = WebService::SAPO::PunyURL->new( url => $long );
+    my $punyurl = WWW::Shorten::PunyURL->new( url => $long );
     $punyurl->shorten;
     
     # or
     
-    my $punyurl = WebService::SAPO::PunyURL->new( url => $short );
+    my $punyurl = WWW::Shorten::PunyURL->new( url => $short );
     $punyurl->long;
 
 Optionally, you can give the constructor a timeout value (which defaults to 10 seconds):
 
-    my $punyurl = WebService::SAPO::PunyURL->new(
+    my $punyurl = WWW::Shorten::PunyURL->new(
         url     => $long,
         timeout => 5
     );
@@ -80,8 +80,12 @@ has 'puny'     => (
 
 has 'ascii'    => (
     is         => 'rw',
-    isa        => 'Str',
-    default    => '',
+    isa        => 'URL',
+);
+
+has 'preview'  => (
+    is         => 'rw',
+    isa        => 'URL',
 );
 
 has 'original' => (
@@ -152,6 +156,7 @@ Give it a long url and you will get two shortened URLs, one using Unicode and it
         print $punyurl->url, "is now:\n";
         print "\t", $punyurl->puny, "\n";
         print "\t", $punyurl->ascii, "\n";
+        print "\t", $punyurl->preview, "\n";
     } else {
         print STDERR "Error:\n";
         print STDERR $punyurl->errstr, "(", $punyurl->error, "\n";
@@ -167,12 +172,14 @@ sub shorten {
     my $xml = $self->_do_http( $request );
     return undef unless $xml;
     
-    my $xpc   = $self->_get_xpc( $xml );
-    my $puny  = $xpc->findvalue( '//p:puny' );
-    my $ascii = $xpc->findvalue( '//p:ascii' );
+    my $xpc     = $self->_get_xpc( $xml );
+    my $puny    = $xpc->findvalue( '//p:puny' );
+    my $ascii   = $xpc->findvalue( '//p:ascii' );
+    my $preview = $xpc->findvalue( '//p:preview' );
     
     $self->puny( $puny );
     $self->ascii( $ascii );
+    $self->preview( $preview );
     
     return 1;
 }
@@ -325,12 +332,11 @@ L<http://search.cpan.org/dist/WWW-Shorten-PunyURL/>
 
 =over 4
 
-* João Pedro, from SAPO, for pushing PunyURL.
+=item * João Pedro, from SAPO, for pushing PunyURL.
 
-* Léon Brocard, for writing lots of code I can look at. My mistakes are my
-  own, however.
+=item * Léon Brocard, for writing lots of code I can look at. My mistakes are my own, however.
   
-* and of course, SAPO :)
+=item * and of course, SAPO :)
 
 =back
 
