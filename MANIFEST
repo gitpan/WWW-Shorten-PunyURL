@@ -19,6 +19,7 @@ t/00-load.t
 t/01-new.t
 t/02-attributes.t
 t/03-xmlparsing.t
+t/04-procedural.t
 t/boilerplate.t
 t/developers.xml
 t/pod-coverage.t
